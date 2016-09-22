@@ -10,6 +10,13 @@ package com.causecode.mongoupdateembedded
 import groovy.transform.EqualsAndHashCode
 import org.bson.types.ObjectId
 
+/**
+ * A domain that holds instances for updating the embedded instances of any domain class. It is used as a queue which
+ * is processed in regular intervals by a job.
+ *
+ * @author Nikhil Sharma
+ * @since 0.0.1
+ */
 @EqualsAndHashCode
 class EmbeddedInstanceQueue {
 
@@ -41,6 +48,7 @@ class EmbeddedInstanceQueue {
     }
 }
 
+@SuppressWarnings(['GrailsDomainHasEquals'])
 enum EmbeddedInstanceQueueStatus {
     ACTIVE(1),
     PROCESSED(2)

@@ -54,8 +54,9 @@ trait EmbeddableDomain implements Validateable {
      * @param useEnumID Whether to convert enums as enum String name or to use the enum ID
      * @return A map of declared properties
      */
-    Map toMap() {
-        Map embeddedData = this.class.declaredFields.findAll { Field field ->
+    @SuppressWarnings(['Instanceof'])
+    Map toMap(Object instance = this) {
+        Map embeddedData = instance.class.declaredFields.findAll { Field field ->
             /*
              * Return all non synthetic & non static fields and must not implement an interface.
              *
@@ -69,25 +70,28 @@ trait EmbeddableDomain implements Validateable {
         }
         // Collect as map from non synthetic & non static fields
         .collectEntries { Field field ->
-            def value = this[field.name]
+            def value = instance[field.name]
 
             /*
              * We can also check if the field type is not serializable to satisfy
              * the condition but that check will fail if we implement Serializable
              * interface. So using a defined set of simple fields instead of checking Serializable.
              *
-             * https://github.com/grails/grails-data-mapping/blob/master/grails-datastore-core/src/main/groovy/org/grails/datastore/mapping/model/MappingFactory.java#L80
+             * https://github.com/grails/grails-data-mapping/blob/master/grails-datastore-core/src/main/groovy/org/
+             * grails/datastore/mapping/model/MappingFactory.java#L80
              */
             if (value) {
                 if (value instanceof Enum) {
-                    if (value.hasProperty("id")) {
+                    if (value.hasProperty('id')) {
                         value = value.id
                     } else {
                         value = value.name()
                     }
-                } else if (!MappingFactory.isSimpleType(value.getClass().name)) {
-                    // Means value is not a simple field, it must be some instance of other class
-                    value = propertiesAsMap(value)
+                } else {
+                    if (!MappingFactory.isSimpleType(value.getClass().name)) {
+                        // Means value is not a simple field, it must be some instance of other class
+                        value = toMap(value)
+                    }
                 }
             }
 
