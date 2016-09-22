@@ -1,0 +1,120 @@
+buildscript {
+    repositories {
+        maven { url "https://repo.grails.org/grails/core" }
+    }
+    dependencies {
+        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+    }
+}
+
+version "0.0.2"
+group "com.causecode.plugins"
+
+apply plugin:"eclipse"
+apply plugin:"idea"
+apply plugin:"org.grails.grails-plugin"
+apply plugin:"org.grails.grails-plugin-publish"
+apply plugin:"jacoco"
+apply plugin:"codenarc"
+
+repositories {
+    mavenLocal()
+    maven { url "https://repo.grails.org/grails/core" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.grails:grails-bom:$grailsVersion"
+    }
+    applyMavenExclusions false
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-logging"
+    compile "org.springframework.boot:spring-boot-autoconfigure"
+    compile "org.springframework.boot:spring-boot-starter-tomcat"
+
+    compile "org.grails:grails-core"
+    compile "org.grails:grails-logging"
+
+    compile "org.grails:grails-plugin-services"
+    provided "org.grails:grails-plugin-url-mappings"
+    provided "org.grails:grails-plugin-domain-class"
+
+    console "org.grails:grails-console"
+
+    provided "org.grails.plugins:mongodb"
+    provided "org.grails.plugins:quartz:2.0.9"
+
+    profile "org.grails.profiles:plugin"
+
+    testCompile "org.grails:grails-plugin-testing"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifactId "mongo-update-embedded"
+
+            pom.withXml {
+                def pomNode = asNode()
+                // version-less dependencies are handled with dependencyManagement
+                pomNode.dependencies.dependency.findAll {
+                    it.version.text().isEmpty()
+                }.each {
+                    it.replaceNode {}
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username mavenPublishUser
+                password mavenPublishPassword
+            }
+            url "http://maven-upload.causecode.com"
+        }
+    }
+}
+
+grailsPublish {
+    // TODO: Provide values here
+    user = 'user'
+    key = 'key'
+    githubSlug = 'foo/bar'
+    license {
+        name = 'Apache-2.0'
+    }
+    title = "My Plugin"
+    desc = "Full plugin description"
+    developers = [johndoe:"John Doe"]
+    portalUser = ""
+    portalPassword = ""
+}
+
+jacoco {
+    toolVersion = "0.7.7.201606060606"
+    reportsDir = file("$buildDir/jacoco")
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.enabled true
+        html.destination "${buildDir}/jacoco/jacocoHtml/"
+    }
+    executionData test, integrationTest
+    jacocoTestReport.dependsOn test, integrationTest
+}
+
+codenarc {
+    toolVersion = "0.25.2"
+}
+
+codenarcMain {
+    configFile file('config/codenarc/codenarc.groovy')
+}
