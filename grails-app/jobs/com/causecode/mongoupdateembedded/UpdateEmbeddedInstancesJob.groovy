@@ -18,11 +18,10 @@ class UpdateEmbeddedInstancesJob {
 
     EmbeddedInstanceQueueService embeddedInstanceQueueService
 
-    static final long FIVE_MINUTES = 300000
-    static final long TWO_HOURS = 7200000
+    static final long TWO_MINUTES = 120000
 
     static triggers = {
-        simple repeatInterval: TWO_HOURS, startDelay: FIVE_MINUTES
+        simple startDelay: TWO_MINUTES, repeatInterval: TWO_MINUTES
     }
 
     def execute() {

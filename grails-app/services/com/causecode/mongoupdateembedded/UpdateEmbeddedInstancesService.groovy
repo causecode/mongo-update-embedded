@@ -52,6 +52,9 @@ class UpdateEmbeddedInstancesService {
         // Iterating all domain classes.
         grailsApplication.domainClasses.each { DefaultGrailsDomainClass domainClass ->
 
+            String currentDomainClassName = domainClass.name
+            Map domainInfoMap = [(currentDomainClassName): []]
+
             // Iterating all embedded fields.
             domainClass.embedded.each { String fieldName ->
 
@@ -77,7 +80,7 @@ class UpdateEmbeddedInstancesService {
                     return
                 }
 
-                Map domainInfoMap = [(domainClass.name): fieldInfoMap]
+                domainInfoMap[currentDomainClassName].add(fieldInfoMap)
 
                 if (domainsThatEmbed[domainName]) {
                     domainsThatEmbed[domainName].putAll(domainInfoMap)
@@ -103,7 +106,7 @@ class UpdateEmbeddedInstancesService {
      * @since 0.0.1
      */
     List<String> resolvePrivateFieldNames(Class clazz) {
-        return clazz.declaredFields.findAll { Field field ->
+        return clazz?.declaredFields.findAll { Field field ->
             !field.synthetic && !Modifier.isStatic(field.modifiers) && !field.type.isInterface() &&
                     !field.name.contains('beforeValidateHelper') && (!(field.name == 'instanceId'))
         }*.name
@@ -138,10 +141,12 @@ class UpdateEmbeddedInstancesService {
         String domainName = domainInstance.class.simpleName
         Map embeddingDomains = domainsThatEmbed[domainName]
 
-        embeddingDomains.each { String domainNameThatEmbed, Map fieldInfo ->
-            // Do not remove this withNewSession closure. It is required to avoid exceptions due to sessions.
-            EmbeddedInstanceQueue.withNewSession {
-                embeddedInstanceQueueService.addToQueue(domainNameThatEmbed, fieldInfo, domainInstance)
+        embeddingDomains.each { String domainNameThatEmbed, List fields ->
+            fields.each { Map fieldInfo ->
+                // Do not remove this withNewSession closure. It is required to avoid exceptions due to sessions.
+                EmbeddedInstanceQueue.withNewSession {
+                    embeddedInstanceQueueService.addToQueue(domainNameThatEmbed, fieldInfo, domainInstance)
+                }
             }
         }
     }

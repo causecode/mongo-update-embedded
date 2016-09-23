@@ -31,6 +31,9 @@ class EmbeddedInstanceQueue {
 
     EmbeddedInstanceQueueStatus status = EmbeddedInstanceQueueStatus.ACTIVE
 
+    Date dateCreated
+    Date lastUpdated
+
     static constraints = {
     }
 

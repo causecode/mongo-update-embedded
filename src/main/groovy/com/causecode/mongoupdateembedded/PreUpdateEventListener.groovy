@@ -8,7 +8,6 @@
 package com.causecode.mongoupdateembedded
 
 import grails.util.Holders
-import groovy.transform.Synchronized
 import groovy.util.logging.Slf4j
 import org.grails.datastore.mapping.core.Datastore
 import org.grails.datastore.mapping.engine.event.AbstractPersistenceEvent
@@ -33,7 +32,6 @@ class PreUpdateEventListener extends AbstractPersistenceEventListener {
      * Method which is called when a domain instance is updated.
      */
     @Override
-    @Synchronized
     protected void onPersistenceEvent(AbstractPersistenceEvent event) {
         log.debug "PreUpdateEventListener invoked for ${event.eventType}"
 

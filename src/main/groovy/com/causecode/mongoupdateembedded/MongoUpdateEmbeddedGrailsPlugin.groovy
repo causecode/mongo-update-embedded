@@ -20,7 +20,7 @@ class MongoUpdateEmbeddedGrailsPlugin extends Plugin {
 
     // Resources that are excluded from plugin packaging
     def pluginExcludes = [
-        'grails-app/views/error.gsp'
+        '**/test/**'
     ]
 
     // TODO Fill in these fields

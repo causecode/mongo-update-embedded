@@ -58,10 +58,10 @@ class EmbeddedInstanceQueueService {
             eq('status', EmbeddedInstanceQueueStatus.ACTIVE)
 
             maxResults(1)
-        }
+        } [0]
 
-        if (embeddedInstanceQueue && embeddedInstanceQueue.id) {
-            log.debug "Found active record for [$DOMAIN_TO_UPDATE] from [$SOURCE_DOMAIN]"
+        if (embeddedInstanceQueue) {
+            log.debug "Found active record for [$domainToUpdate] from [${propertiesMap[SOURCE_DOMAIN]}]"
             return
         }
 
@@ -81,7 +81,7 @@ class EmbeddedInstanceQueueService {
      * @since 0.0.1
      */
     Class getDomainClass(String className) {
-        return grailsApplication.domainClasses.find { it.name == className }.clazz
+        return grailsApplication.domainClasses.find { it.name == className }?.clazz
     }
 
     /**
