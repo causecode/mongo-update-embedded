@@ -111,7 +111,7 @@ jacocoTestReport {
     afterEvaluate {
         classDirectories = files(classDirectories.files.collect {
             fileTree(dir: it,
-                    exclude: ['**UpdateEmbeddedInstancesJob**', '**/*Application.*/**'])
+                    exclude: ['**/*UpdateEmbeddedInstancesJob.*/**', '**/*Application.*/**'])
         })
     }
     executionData test, integrationTest

@@ -64,6 +64,7 @@ class UpdateEmbeddedInstancesService {
                 Class clazz
                 Type genericType = field.genericType
 
+                // Checking if the field is a Set or List of Embedded Objects.
                 if (genericType && (genericType instanceof ParameterizedType)) {
                     clazz = genericType.actualTypeArguments[0]
                     fieldInfoMap.isFieldArray = true
@@ -71,10 +72,10 @@ class UpdateEmbeddedInstancesService {
                     clazz = field.type
                 }
 
-                String domainName
+                String embeddedDomainName
 
                 try {
-                    domainName = clazz.resolveParentDomainClass()
+                    embeddedDomainName = clazz.resolveParentDomainClass()
                 } catch (MissingMethodException e) {
                     log.debug "${clazz.simpleName} is not a Domain class."
                     return
@@ -82,11 +83,11 @@ class UpdateEmbeddedInstancesService {
 
                 domainInfoMap[currentDomainClassName].add(fieldInfoMap)
 
-                if (domainsThatEmbed[domainName]) {
-                    domainsThatEmbed[domainName].putAll(domainInfoMap)
+                if (domainsThatEmbed[embeddedDomainName]) {
+                    domainsThatEmbed[embeddedDomainName].putAll(domainInfoMap)
                 } else {
-                    domainsThatEmbed.put(domainName, domainInfoMap)
-                    embeddedClassFields.put(domainName, [fieldList: resolvePrivateFieldNames(clazz)])
+                    domainsThatEmbed.put(embeddedDomainName, domainInfoMap)
+                    embeddedClassFields.put(embeddedDomainName, [fieldList: resolvePrivateFieldNames(clazz)])
                 }
             }
         }

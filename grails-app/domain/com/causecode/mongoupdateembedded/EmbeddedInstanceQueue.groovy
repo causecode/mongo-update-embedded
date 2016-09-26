@@ -27,6 +27,8 @@ class EmbeddedInstanceQueue {
 
     String domainToUpdate
     String fieldToUpdate
+
+    // This field indicates whether to insert the MongoDB's `.$` operator for updating within arrays.
     boolean isFieldArray
 
     EmbeddedInstanceQueueStatus status = EmbeddedInstanceQueueStatus.ACTIVE

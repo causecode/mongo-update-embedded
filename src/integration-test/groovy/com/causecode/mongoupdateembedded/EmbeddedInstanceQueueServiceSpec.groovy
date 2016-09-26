@@ -21,7 +21,7 @@ class EmbeddedInstanceQueueServiceSpec extends Specification {
 
     EmbeddedInstanceQueueService embeddedInstanceQueueService
 
-    def logStatement
+    Object logStatement
 
     void setup() {
         // Mocking the logger calls to test the log statements.

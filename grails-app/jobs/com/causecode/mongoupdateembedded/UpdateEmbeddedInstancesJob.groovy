@@ -5,11 +5,11 @@
  * Redistribution and use in source and binary forms, with or
  * without modification, are not permitted.
  */
-import com.causecode.mongoupdateembedded.EmbeddedInstanceQueueService
+package com.causecode.mongoupdateembedded
 
 /**
- * This Job is used for processing the pending embedded instances queue. This job starts with a delay of 5 minutes
- * and repeats every 2 hours.
+ * This Job is used for processing the pending embedded instances queue. This job starts with a delay of 2 minutes
+ * and repeats every 2 minutes.
  *
  * @author Nikhil Sharma
  * @since 0.0.1

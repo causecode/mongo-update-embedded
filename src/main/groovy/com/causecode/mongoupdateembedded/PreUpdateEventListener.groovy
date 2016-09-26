@@ -15,8 +15,11 @@ import org.grails.datastore.mapping.engine.event.AbstractPersistenceEventListene
 import org.grails.datastore.mapping.engine.event.PreUpdateEvent
 
 /**
- * A generic listener used to listen pre update event i.e. {@link #onPersistenceEvent onPersistenceEvent}
- * is called just before the domain is being updated and persisted to the database.
+ * A Generic Listener for Gorm's PreUpdateEvent that is called just before the domain is being updated and persisted to
+ * the database.
+ *
+ * @author Nikhil Sharma
+ * @since 0.0.1
  */
 @Slf4j
 class PreUpdateEventListener extends AbstractPersistenceEventListener {
@@ -28,8 +31,13 @@ class PreUpdateEventListener extends AbstractPersistenceEventListener {
         updateEmbeddedInstancesService = Holders.applicationContext.getBean('updateEmbeddedInstancesService')
     }
 
-    /*
-     * Method which is called when a domain instance is updated.
+    /**
+     * This method is invoked when a domain instance is updated. The instance to be updated is matched for fields
+     * to be dirty that is present in the domain's embeddable class. If any of the field that is present in the
+     * embeddable class is dirty, then the EmbeddedQueueInstance's instances are created.
+     *
+     * @author Nikhil Sharma
+     * @since 0.0.1
      */
     @Override
     protected void onPersistenceEvent(AbstractPersistenceEvent event) {
@@ -62,6 +70,16 @@ class PreUpdateEventListener extends AbstractPersistenceEventListener {
         }
     }
 
+    /**
+     * This method checks the event type and returns true only if the event type is PreUpdateEvent which invokes the
+     * onPersistenceEvent listener.
+     *
+     * @param eventType The class representing the type of event.
+     * @return boolean true If the event type is PreUpdateEvent.
+     *
+     * @author Nikhil Sharma
+     * @since 0.0.1
+     */
     @Override
     boolean supportsEventType(Class eventType) {
         // Only listen to the PreUpdate event.

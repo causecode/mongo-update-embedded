@@ -12,6 +12,8 @@ import org.grails.datastore.mapping.core.Datastore
 
 /**
  * This class is used as the descriptor for this plugin.
+ *
+ * @author CauseCode Technologies
  */
 class MongoUpdateEmbeddedGrailsPlugin extends Plugin {
 
@@ -28,7 +30,7 @@ class MongoUpdateEmbeddedGrailsPlugin extends Plugin {
     def author = 'CauseCode Technologies'
     def authorEmail = 'vishesh@causecode.com'
     def description = '''\
-            This plugin is used to update embedded isntances of a domain class that has been embedded using a class with
+            This plugin is used to update embedded instances of a domain class that has been embedded using a class with
             some fields of the domain instead of embedding the entire domain.
             '''
 
@@ -45,6 +47,7 @@ class MongoUpdateEmbeddedGrailsPlugin extends Plugin {
 
         mainContext.getBean('updateEmbeddedInstancesService').initializeEmbeddedDomainsMap()
 
+        // Registering the PreUpdateEvent listener.
         mainContext.getBeansOfType(Datastore).values().each { Datastore d ->
             mainContext.addApplicationListener(new PreUpdateEventListener(d))
         }
