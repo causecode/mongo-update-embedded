@@ -7,7 +7,7 @@
  */
 package test
 
-import com.causecode.mongoupdateembedded.embeddable.EmbeddableDomain
+import com.causecode.mongo.embeddable.EmbeddableDomain
 import org.bson.types.ObjectId
 
 /**

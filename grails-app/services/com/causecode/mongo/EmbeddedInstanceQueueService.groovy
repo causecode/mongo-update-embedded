@@ -5,7 +5,7 @@
  * Redistribution and use in source and binary forms, with or
  * without modification, are not permitted.
  */
-package com.causecode.mongoupdateembedded
+package com.causecode.mongo
 
 import com.mongodb.client.result.UpdateResult
 import grails.core.GrailsApplication
@@ -95,7 +95,8 @@ class EmbeddedInstanceQueueService {
     @SuppressWarnings(['CatchException'])
     @Synchronized
     void processEmbeddedInstanceQueue() {
-        List embeddedInstanceQueueList = EmbeddedInstanceQueue.findAllByStatus(EmbeddedInstanceQueueStatus.ACTIVE)
+        List embeddedInstanceQueueList = EmbeddedInstanceQueue.findAllByStatus(EmbeddedInstanceQueueStatus.ACTIVE,
+                [max: 1000])
 
         log.debug "Found [${embeddedInstanceQueueList.size()}] records to update embedded instances"
 

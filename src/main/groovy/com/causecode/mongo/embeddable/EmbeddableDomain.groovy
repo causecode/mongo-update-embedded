@@ -5,7 +5,7 @@
  * Redistribution and use in source and binary forms, with or
  * without modification, are not permitted.
  */
-package com.causecode.mongoupdateembedded.embeddable
+package com.causecode.mongo.embeddable
 
 import grails.validation.Validateable
 import grails.util.Holders

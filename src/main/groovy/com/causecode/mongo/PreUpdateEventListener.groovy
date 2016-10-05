@@ -5,7 +5,7 @@
  * Redistribution and use in source and binary forms, with or
  * without modification, are not permitted.
  */
-package com.causecode.mongoupdateembedded
+package com.causecode.mongo
 
 import grails.util.Holders
 import groovy.util.logging.Slf4j
