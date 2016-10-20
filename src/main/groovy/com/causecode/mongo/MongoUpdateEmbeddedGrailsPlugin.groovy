@@ -30,8 +30,8 @@ class MongoUpdateEmbeddedGrailsPlugin extends Plugin {
     def author = 'CauseCode Technologies'
     def authorEmail = 'vishesh@causecode.com'
     def description = '''\
-            This plugin is used to update embedded instances of a domain class that has been embedded using a class with
-            some fields of the domain instead of embedding the entire domain.
+            This plugin helps trickle down updates to a domain instance to its embedded instances in other domain
+            classes. Read more on embedded objects <http://docs.grails.org/latest/ref/Domain%20Classes/embedded.html>.
             '''
 
     def developers = [[name: 'Vishesh Duggar', email: authorEmail],
@@ -45,7 +45,7 @@ class MongoUpdateEmbeddedGrailsPlugin extends Plugin {
     void doWithApplicationContext() {
         def mainContext = grailsApplication.mainContext
 
-        mainContext.getBean('updateEmbeddedInstancesService').initializeEmbeddedDomainsMap()
+        mainContext.getBean('updateEmbeddedInstancesService').embeddedDomainsMap
 
         // Registering the PreUpdateEvent listener.
         mainContext.getBeansOfType(Datastore).values().each { Datastore d ->

@@ -36,6 +36,8 @@ class EmbeddedInstanceQueue {
     Date dateCreated
     Date lastUpdated
 
+    int attemptCount
+
     static constraints = {
     }
 
@@ -56,7 +58,8 @@ class EmbeddedInstanceQueue {
 @SuppressWarnings(['GrailsDomainHasEquals'])
 enum EmbeddedInstanceQueueStatus {
     ACTIVE(1),
-    PROCESSED(2)
+    PROCESSED(2),
+    FAILED(3)
 
     final int id
     EmbeddedInstanceQueueStatus(int id) {

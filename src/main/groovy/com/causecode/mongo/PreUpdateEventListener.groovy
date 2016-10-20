@@ -64,7 +64,7 @@ class PreUpdateEventListener extends AbstractPersistenceEventListener {
         }
 
         if (isDirty) {
-            updateEmbeddedInstancesService.addToUpdateQueue(domainInstance)
+            updateEmbeddedInstancesService.enqueue(domainInstance)
         } else {
             log.debug "Nothing to add to queue for update in domain $domainClassName"
         }

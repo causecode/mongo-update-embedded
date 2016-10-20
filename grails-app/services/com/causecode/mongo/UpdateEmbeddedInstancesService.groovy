@@ -48,7 +48,11 @@ class UpdateEmbeddedInstancesService {
      * @since 0.0.1
      */
     @SuppressWarnings(['Instanceof'])
-    void initializeEmbeddedDomainsMap() {
+    Map getEmbeddedDomainsMap() {
+        if (domainsThatEmbed) {
+            return domainsThatEmbed
+        }
+
         // Iterating all domain classes.
         grailsApplication.domainClasses.each { DefaultGrailsDomainClass domainClass ->
 
@@ -78,7 +82,7 @@ class UpdateEmbeddedInstancesService {
                     embeddedDomainName = clazz.resolveParentDomainClass()
                 } catch (MissingMethodException e) {
                     log.debug "${clazz.simpleName} is not a Domain class."
-                    return
+                    return false
                 }
 
                 domainInfoMap[currentDomainClassName].add(fieldInfoMap)
@@ -87,18 +91,20 @@ class UpdateEmbeddedInstancesService {
                     domainsThatEmbed[embeddedDomainName].putAll(domainInfoMap)
                 } else {
                     domainsThatEmbed.put(embeddedDomainName, domainInfoMap)
-                    embeddedClassFields.put(embeddedDomainName, [fieldList: resolvePrivateFieldNames(clazz)])
+                    embeddedClassFields.put(embeddedDomainName, [fieldList: resolveFieldsForDirtiness(clazz)])
                 }
             }
         }
 
         log.info "Embedded domains map: $domainsThatEmbed"
         log.info "Field list for each domain to check dirty for: $embeddedClassFields"
+
+        return domainsThatEmbed
     }
 
     /**
-     * This method is used to get all fields present in the Embedded class of any domain excluding the fields that
-     * are not required to be matched for any changes.
+     * This method is used to get all fields that are present in the Embedded class of a given domain.
+     * Removing any additional fields that get added to the embedded class due to inheritance.
      *
      * @param clazz The Embedded class.
      * @return List List of field names.
@@ -106,7 +112,7 @@ class UpdateEmbeddedInstancesService {
      * @author Nikhil Sharma
      * @since 0.0.1
      */
-    List<String> resolvePrivateFieldNames(Class clazz) {
+    List<String> resolveFieldsForDirtiness(Class clazz) {
         return clazz?.declaredFields.findAll { Field field ->
             !field.synthetic && !Modifier.isStatic(field.modifiers) && !field.type.isInterface() &&
                     !field.name.contains('beforeValidateHelper') && (!(field.name == 'instanceId'))
@@ -136,11 +142,11 @@ class UpdateEmbeddedInstancesService {
      * @author Nikhil Sharma
      * @since 0.0.1
      */
-    void addToUpdateQueue(Object domainInstance) {
+    void enqueue(Object domainInstance) {
         log.debug "Adding queues for updating embedded instance of domain $domainInstance"
 
         String domainName = domainInstance.class.simpleName
-        Map embeddingDomains = domainsThatEmbed[domainName]
+        Map embeddingDomains = embeddedDomainsMap[domainName]
 
         embeddingDomains.each { String domainNameThatEmbed, List fields ->
             fields.each { Map fieldInfo ->

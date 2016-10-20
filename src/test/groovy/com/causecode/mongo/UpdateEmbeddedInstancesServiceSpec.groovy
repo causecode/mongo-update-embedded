@@ -21,8 +21,8 @@ import test.TestDomainB
 class UpdateEmbeddedInstancesServiceSpec extends Specification {
 
     void "test initializeEmbeddedDomainsMap for creating correct maps for TestDomainA and TestDomainB"() {
-        when: "The initializeEmbeddedDomainsMap method is called"
-        service.initializeEmbeddedDomainsMap()
+        when: "The getEmbeddedDomainsMap method is called"
+        service.getEmbeddedDomainsMap()
 
         then: "The domainsThatEmbed and embeddedClassFields map should be correctly initialized"
         UpdateEmbeddedInstancesService.domainsThatEmbed == [TestDomainA: [TestDomainB: [[fieldName: 'testDomainA',
@@ -31,8 +31,8 @@ class UpdateEmbeddedInstancesServiceSpec extends Specification {
     }
 
     void "test resolvePrivateFieldNames for returning field names that needs to be matched for dirty checking"() {
-        when: "The resolvePrivateFieldNames method is called for EmTestDomainA"
-        List<String> fieldNames = service.resolvePrivateFieldNames(EmTestDomainA)
+        when: "The resolveFieldsForDirtiness method is called for EmTestDomainA"
+        List<String> fieldNames = service.resolveFieldsForDirtiness(EmTestDomainA)
 
         then: "The field TestFieldA should be returned"
         fieldNames == ['testField1', 'status']
@@ -40,7 +40,7 @@ class UpdateEmbeddedInstancesServiceSpec extends Specification {
 
     void "test getFieldsToCheckForDirty to get the list of fields to check dirty for a domain"() {
         given: "Initializing the field list for each domain"
-        service.initializeEmbeddedDomainsMap()
+        service.getEmbeddedDomainsMap()
 
         when: "The getFieldsToCheckForDirty method is called for TestDomainA"
         List<String> fieldNames = service.getFieldsToCheckForDirty(TestDomainA.class.simpleName)
@@ -49,7 +49,7 @@ class UpdateEmbeddedInstancesServiceSpec extends Specification {
         fieldNames == ['testField1', 'status']
     }
 
-    void "test addToUpdateQueue for adding EmbeddedInstanceQueue instances for a domain instance"() {
+    void "test enqueue for adding EmbeddedInstanceQueue instances for a domain instance"() {
         given: "An instance of TestDomainA"
         TestDomainA testDomainAInstance = new TestDomainA()
         testDomainAInstance.testField1 = "Test 1"
@@ -59,11 +59,13 @@ class UpdateEmbeddedInstancesServiceSpec extends Specification {
 
         assert EmbeddedInstanceQueue.count() == 0
 
-        when: "The addToUpdateQueue method is called for this domain instance"
-        service.addToUpdateQueue(testDomainAInstance)
+        when: "The enqueue method is called for this domain instance"
+        service.enqueue(testDomainAInstance)
 
         then: "Instances of EmbeddedInstanceQueue should be created"
         List<EmbeddedInstanceQueue> embeddedInstanceQueueList = EmbeddedInstanceQueue.list(sort: 'dateCreated')
+
+        embeddedInstanceQueueList.size() == 2
 
         embeddedInstanceQueueList[0].domainToUpdate == 'TestDomainB'
         embeddedInstanceQueueList[0].fieldToUpdate == 'testDomainA'
