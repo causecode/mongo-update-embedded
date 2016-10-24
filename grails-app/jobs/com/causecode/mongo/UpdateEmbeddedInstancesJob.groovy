@@ -5,7 +5,7 @@
  * Redistribution and use in source and binary forms, with or
  * without modification, are not permitted.
  */
-package com.causecode.mongoupdateembedded
+package com.causecode.mongo
 
 /**
  * This Job is used for processing the pending embedded instances queue. This job starts with a delay of 2 minutes

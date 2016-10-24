@@ -1,7 +1,7 @@
 grails:
     profile: plugin
     codegen:
-        defaultPackage: com.causecode.mongoupdateembedded
+        defaultPackage: com.causecode.mongo
     spring:
         transactionManagement:
             proxies: false

@@ -5,7 +5,7 @@
  * Redistribution and use in source and binary forms, with or
  * without modification, are not permitted.
  */
-package com.causecode.mongoupdateembedded
+package com.causecode.mongo
 
 import com.mongodb.client.result.UpdateResult
 import grails.core.GrailsApplication
@@ -24,11 +24,9 @@ class EmbeddedInstanceQueueService {
 
     GrailsApplication grailsApplication
 
-    static final String SOURCE_DOMAIN = 'sourceDomain'
-    static final String SOURCE_DOMAIN_ID = 'sourceDomainId'
-    static final String DOMAIN_TO_UPDATE = 'domainToUpdate'
-    static final String FIELD_TO_UPDATE = 'fieldToUpdate'
     static final Map FLUSH_TRUE = [flush: true]
+    static final String STATUS = 'status'
+    static final Integer THREE = 3
 
     /**
      * This method creates the instances of EmbeddedInstanceQueue and is triggered from the PreUpdateEventListener
@@ -43,31 +41,36 @@ class EmbeddedInstanceQueueService {
      */
     @Synchronized
     void addToQueue(String domainToUpdate, Map fieldInfo, Object sourceDomainInstance) {
-        Map propertiesMap = [(DOMAIN_TO_UPDATE): domainToUpdate, (FIELD_TO_UPDATE): fieldInfo.fieldName,
+        String sourceDomain = 'sourceDomain'
+        String sourceDomainId = 'sourceDomainId'
+        String domainToBeUpdated = 'domainToUpdate'
+        String fieldToBeUpdated = 'fieldToUpdate'
+
+        Map propertiesMap = [(domainToBeUpdated): domainToUpdate, (fieldToBeUpdated): fieldInfo.fieldName,
                 isFieldArray: fieldInfo.isFieldArray]
-        propertiesMap[SOURCE_DOMAIN] = sourceDomainInstance.getClass().simpleName
-        propertiesMap[SOURCE_DOMAIN_ID] = sourceDomainInstance.id
+        propertiesMap[sourceDomain] = sourceDomainInstance.getClass().simpleName
+        propertiesMap[sourceDomainId] = sourceDomainInstance.id
 
         log.info "Property map for EmbeddedQueueInstance $propertiesMap"
 
         EmbeddedInstanceQueue embeddedInstanceQueue = EmbeddedInstanceQueue.withCriteria {
-            eq(SOURCE_DOMAIN, propertiesMap[SOURCE_DOMAIN])
-            eq(SOURCE_DOMAIN_ID, propertiesMap[SOURCE_DOMAIN_ID])
-            eq(FIELD_TO_UPDATE, propertiesMap[FIELD_TO_UPDATE])
-            eq(DOMAIN_TO_UPDATE, propertiesMap[DOMAIN_TO_UPDATE])
-            eq('status', EmbeddedInstanceQueueStatus.ACTIVE)
+            eq(sourceDomain, propertiesMap[sourceDomain])
+            eq(sourceDomainId, propertiesMap[sourceDomainId])
+            eq(fieldToBeUpdated, propertiesMap[fieldToBeUpdated])
+            eq(domainToBeUpdated, propertiesMap[domainToBeUpdated])
+            eq(STATUS, EmbeddedInstanceQueueStatus.ACTIVE)
 
             maxResults(1)
         } [0]
 
         if (embeddedInstanceQueue) {
-            log.debug "Found active record for [$domainToUpdate] from [${propertiesMap[SOURCE_DOMAIN]}]"
+            log.debug "Found active record for [$domainToUpdate] from [${propertiesMap[sourceDomain]}]"
             return
         }
 
         embeddedInstanceQueue = new EmbeddedInstanceQueue(propertiesMap)
         if (!embeddedInstanceQueue.save(FLUSH_TRUE)) {
-            log.error 'Failed to create EmbeddedInstanceQueue instance.'
+            log.error "Failed to create EmbeddedInstanceQueue instance due to ${embeddedInstanceQueue.errors}"
         }
     }
 
@@ -95,7 +98,12 @@ class EmbeddedInstanceQueueService {
     @SuppressWarnings(['CatchException'])
     @Synchronized
     void processEmbeddedInstanceQueue() {
-        List embeddedInstanceQueueList = EmbeddedInstanceQueue.findAllByStatus(EmbeddedInstanceQueueStatus.ACTIVE)
+        List embeddedInstanceQueueList = EmbeddedInstanceQueue.withCriteria {
+            eq(STATUS, EmbeddedInstanceQueueStatus.ACTIVE)
+            le('attemptCount', THREE)
+
+            maxResults(1000)
+        }
 
         log.debug "Found [${embeddedInstanceQueueList.size()}] records to update embedded instances"
 
@@ -107,7 +115,7 @@ class EmbeddedInstanceQueueService {
             Class classToUpdate = getDomainClass(embeddedInstanceQueueInstance.domainToUpdate)
 
             try {
-                Object domainInstance = sourceClass.get(embeddedInstanceQueueInstance.sourceDomainId)
+                Object sourceDomainInstance = sourceClass.get(embeddedInstanceQueueInstance.sourceDomainId)
                 String fieldToUpdate = embeddedInstanceQueueInstance.fieldToUpdate
                 String fieldToMatch = fieldToUpdate + '.instanceId'
 
@@ -117,9 +125,9 @@ class EmbeddedInstanceQueueService {
                     fieldToUpdate = fieldToUpdate + '.\$'
                 }
 
-                Map embeddedMap = domainInstance.embeddedInstance.toMap()
+                Map embeddedMap = sourceDomainInstance.embeddedInstance.toMap()
 
-                Map query = [(fieldToMatch): domainInstance.id]
+                Map query = [(fieldToMatch): sourceDomainInstance.id]
                 Map updateOperation = [(MongoConstants.SET_OPERATOR): [(fieldToUpdate): embeddedMap]]
 
                 log.debug "Match query: $query, Update operation: $updateOperation and update data: $embeddedMap"
@@ -129,9 +137,17 @@ class EmbeddedInstanceQueueService {
                 log.debug "Update query complete result: [$result]"
 
                 embeddedInstanceQueueInstance.status = EmbeddedInstanceQueueStatus.PROCESSED
-                embeddedInstanceQueueInstance.save(FLUSH_TRUE)
             } catch (Exception e) {
                 log.error "Error updating queued embedded instance [$embeddedInstanceQueueInstance]", e
+
+                if (embeddedInstanceQueueInstance.attemptCount == THREE) {
+                    log.debug "3 attempts has been done to update $embeddedInstanceQueueInstance, setting status failed"
+                    embeddedInstanceQueueInstance.status = EmbeddedInstanceQueueStatus.FAILED
+                    embeddedInstanceQueueInstance.save(FLUSH_TRUE)
+                }
+            } finally {
+                embeddedInstanceQueueInstance.attemptCount++
+                embeddedInstanceQueueInstance.save(FLUSH_TRUE)
             }
         }
     }

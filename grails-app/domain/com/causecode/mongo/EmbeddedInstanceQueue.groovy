@@ -5,7 +5,7 @@
  * Redistribution and use in source and binary forms, with or
  * without modification, are not permitted.
  */
-package com.causecode.mongoupdateembedded
+package com.causecode.mongo
 
 import groovy.transform.EqualsAndHashCode
 import org.bson.types.ObjectId
@@ -36,6 +36,8 @@ class EmbeddedInstanceQueue {
     Date dateCreated
     Date lastUpdated
 
+    int attemptCount
+
     static constraints = {
     }
 
@@ -56,7 +58,8 @@ class EmbeddedInstanceQueue {
 @SuppressWarnings(['GrailsDomainHasEquals'])
 enum EmbeddedInstanceQueueStatus {
     ACTIVE(1),
-    PROCESSED(2)
+    PROCESSED(2),
+    FAILED(3)
 
     final int id
     EmbeddedInstanceQueueStatus(int id) {
