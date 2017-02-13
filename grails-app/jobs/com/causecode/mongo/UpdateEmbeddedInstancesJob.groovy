@@ -25,8 +25,6 @@ class UpdateEmbeddedInstancesJob {
     }
 
     def execute() {
-        log.debug 'Started executing UpdateEmbeddedInstanceJob Job..'
         embeddedInstanceQueueService.processEmbeddedInstanceQueue()
-        log.debug 'Finished executing UpdateEmbeddedInstanceJob Job..'
     }
 }
