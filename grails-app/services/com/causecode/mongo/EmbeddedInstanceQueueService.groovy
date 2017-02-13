@@ -105,7 +105,13 @@ class EmbeddedInstanceQueueService {
             maxResults(1000)
         }
 
-        log.debug "Found [${embeddedInstanceQueueList.size()}] records to update embedded instances"
+        int count = embeddedInstanceQueueList.size()
+
+        if (count < 1) {
+            return
+        }
+
+        log.debug "Found [${count}] records to update embedded instances"
 
         embeddedInstanceQueueList.each { EmbeddedInstanceQueue embeddedInstanceQueueInstance ->
             log.info ("Updating instances of domain [${embeddedInstanceQueueInstance.domainToUpdate}] due to update " +
