@@ -26,6 +26,9 @@ class EmbeddedInstanceQueueServiceSpec extends Specification {
     Object logStatement
 
     void setup() {
+        // Reset for each test case.
+        logStatement = null
+
         // Mocking the logger calls to test the log statements.
         embeddedInstanceQueueService.log = [debug: { Object message ->
             logStatement = message
@@ -216,10 +219,12 @@ class EmbeddedInstanceQueueServiceSpec extends Specification {
         embeddedInstanceQueueInstance.status == EmbeddedInstanceQueueStatus.FAILED
 
         when: 'Status changed to FAILED and processEmbeddedInstanceQueue is called the next time'
+        // Reset the log.
+        logStatement = null
         embeddedInstanceQueueService.processEmbeddedInstanceQueue()
 
         then: 'No records should be fetched'
-        logStatement == "Found [0] records to update embedded instances"
+        logStatement == null
     }
 
     @Unroll
@@ -239,7 +244,7 @@ class EmbeddedInstanceQueueServiceSpec extends Specification {
         embeddedInstanceQueueService.processEmbeddedInstanceQueue()
 
         then: "There should be zero records to process."
-        logStatement == "Found [0] records to update embedded instances"
+        logStatement == null
 
         where:
         attemptCount | status
