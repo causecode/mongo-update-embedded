@@ -125,8 +125,6 @@ class EmbeddedInstanceQueueService {
                 String fieldToUpdate = embeddedInstanceQueueInstance.fieldToUpdate
                 String fieldToMatch = fieldToUpdate + '.instanceId'
 
-                Map options = [multi: true, upsert: false]
-
                 if (embeddedInstanceQueueInstance.isFieldArray) {
                     fieldToUpdate = fieldToUpdate + '.\$'
                 }
@@ -138,7 +136,8 @@ class EmbeddedInstanceQueueService {
 
                 log.debug "Match query: $query, Update operation: $updateOperation and update data: $embeddedMap"
 
-                UpdateResult result = classToUpdate.collection.update(query, updateOperation, options)
+                Map options = [upsert: false]
+                UpdateResult result = classToUpdate.collection.updateMany(query, updateOperation, options)
 
                 log.debug "Update query complete result: [$result]"
 
