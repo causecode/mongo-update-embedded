@@ -17,7 +17,7 @@ import org.grails.datastore.mapping.model.MappingFactory
 /**
  * A trait for all Embeddable domain classes which ensure that validation checks are performed for the embedded
  * instances. This trait adds a dynamic method to all implementing classes using which we can get the actual domain's
- * complete instance without adding the methods to each and every embeddedable domain class.
+ * complete instance without adding the methods to each and every embeddable domain class.
  *
  * @author Nikhil Sharma
  * @since 1.1.0
@@ -53,7 +53,6 @@ trait EmbeddableDomain implements Validateable {
      * the data needs to be a map to persist correctly.
      *
      * @param instance Instance of any class to get declared properties as a Map
-     * @param useEnumID Whether to convert enums as enum String name or to use the enum ID
      * @return A map of declared properties
      */
     @SuppressWarnings(['Instanceof'])
@@ -69,9 +68,10 @@ trait EmbeddableDomain implements Validateable {
              *
              * More details available at https://docs.oracle.com/javase/tutorial/reflect/member/fieldModifiers.html
              *
-             * TODO Need to investigate what all fields are removed here. Test with possible field types.
-             *
              * It is also used at {@link com.causecode.mongo.UpdateEmbeddedInstancesService#resolveFieldsForDirtiness}
+             *
+             * Note: These checks are safe and no other fields are expected as these classes are simple Groovy classes
+             * and not Grails Artefacts and hence there are no dynamic or compile time injections for these classes.
              */
             !field.synthetic && !Modifier.isStatic(field.modifiers) && !field.type.isInterface() &&
                     !field.name.contains('beforeValidateHelper')
