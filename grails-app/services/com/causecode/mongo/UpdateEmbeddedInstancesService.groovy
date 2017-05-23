@@ -106,14 +106,17 @@ class UpdateEmbeddedInstancesService {
      * This method is used to get all fields that are present in the Embedded class of a given domain.
      * Removing any additional fields that get added to the embedded class due to inheritance.
      *
-     * @param clazz The Embedded class.
+     * Note: These checks are safe and no other fields are expected as these classes are simple Groovy classes
+     * and not Grails Artefacts and hence there are no dynamic or compile time injections for these classes.
+     *
+     * @param emClazz The Embedded class.
      * @return List List of field names.
      *
      * @author Nikhil Sharma
      * @since 0.0.1
      */
-    List<String> resolveFieldsForDirtiness(Class clazz) {
-        return clazz?.declaredFields.findAll { Field field ->
+    List<String> resolveFieldsForDirtiness(Class emClazz) {
+        return emClazz?.declaredFields.findAll { Field field ->
             !field.synthetic && !Modifier.isStatic(field.modifiers) && !field.type.isInterface() &&
                     !field.name.contains('beforeValidateHelper') && (!(field.name == 'instanceId'))
         }*.name
