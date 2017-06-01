@@ -4,10 +4,10 @@ buildscript {
         mavenLocal()
         maven {
             credentials {
-                username ccRepoUser
-                password ccRepoPassword
+                username mavenUser
+                password mavenPassword
             }
-            url "http://maven-upload.causecode.com"
+            url "http://maven.causecode.com"
         }
     }
     dependencies {
@@ -16,7 +16,7 @@ buildscript {
     }
 }
 
-version "0.0.5"
+version "0.0.6"
 group "com.causecode.plugins"
 
 apply plugin:"eclipse"
