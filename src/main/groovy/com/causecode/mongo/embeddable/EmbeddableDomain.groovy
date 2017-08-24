@@ -118,7 +118,7 @@ trait EmbeddableDomain implements Validateable {
     }
 
     /**
-     * This method checks whether the field type if of Collection or Map type and based on that it converts it to Map.
+     * This method checks whether the field type is of Collection or Map and based on that it converts it to Map.
      * @param field - {@link Field} instance for the class property
      * @param value - value of the instance
      *
