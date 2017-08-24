@@ -12,11 +12,11 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.causecode.plugins:gradle-code-quality:0.0.7"
+        classpath "com.causecode.plugins:gradle-code-quality:0.0.8"
     }
 }
 
-version "0.0.6"
+version "0.0.7"
 group "com.causecode.plugins"
 
 apply plugin:"eclipse"

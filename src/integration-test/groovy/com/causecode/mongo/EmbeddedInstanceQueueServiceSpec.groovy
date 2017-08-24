@@ -7,6 +7,7 @@
  */
 package com.causecode.mongo
 
+import com.causecode.validatable.BaseTestSetup
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import org.bson.types.ObjectId
@@ -16,13 +17,15 @@ import spock.lang.Unroll
 import spock.util.mop.ConfineMetaClassChanges
 import test.TestDomainA
 import test.TestDomainB
+import test.TestDomainC
+import test.TestDomainD
 
 /**
  * Test cases for EmbeddedInstanceQueueService class.
  */
 @Integration
 @Rollback
-class EmbeddedInstanceQueueServiceSpec extends Specification {
+class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTestSetup {
 
     EmbeddedInstanceQueueService embeddedInstanceQueueService
 
@@ -153,7 +156,7 @@ class EmbeddedInstanceQueueServiceSpec extends Specification {
         assert testDomainBInstance.id
         assert testDomainBInstance.testDomainA.testField1 == 'Test 1'
 
-        assert EmbeddedInstanceQueue.count() == 2
+        assert EmbeddedInstanceQueue.count() == 3
 
         when: 'The processEmbeddedInstanceQueue method is called to process the instance'
         embeddedInstanceQueueService.processEmbeddedInstanceQueue()
@@ -188,7 +191,7 @@ class EmbeddedInstanceQueueServiceSpec extends Specification {
         assert testDomainBInstance.id
         assert testDomainBInstance.testDomainA.testField1 == 'Test 1'
 
-        assert EmbeddedInstanceQueue.count() == 2
+        assert EmbeddedInstanceQueue.count() == 3
 
         EmbeddedInstanceQueue embeddedInstanceQueueInstance = EmbeddedInstanceQueue.first()
         assert embeddedInstanceQueueInstance.attemptCount == 0
@@ -253,5 +256,32 @@ class EmbeddedInstanceQueueServiceSpec extends Specification {
         attemptCount | status
         0            | EmbeddedInstanceQueueStatus.FAILED
         4            | EmbeddedInstanceQueueStatus.ACTIVE
+    }
+
+    void 'test complete cycle for PreUpdateEventListener when domain instance with Collection type is updated'() {
+        given: 'An instance of TestDomainA, TestDomainC, and TestDomainD'
+        TestDomainA testDomainAInstance = createTestDomainA()
+        TestDomainC testDomainCInstance = createTestDomainC(testDomainAInstance.embeddedInstance)
+
+        TestDomainD testDomainDInstance = new TestDomainD(emTestDomainC: testDomainCInstance.embeddedInstance)
+        testDomainDInstance.save(flush: true)
+
+        assert testDomainDInstance.id
+
+        and: 'The TestDomainC is updated'
+        testDomainCInstance.name = 'Updated New Value'
+        assert testDomainCInstance.isDirty()
+
+        testDomainCInstance.save(flush: true)
+
+        assert testDomainCInstance.name == 'Updated New Value'
+
+        assert EmbeddedInstanceQueue.count() == 1
+
+        when: 'The processEmbeddedInstanceQueue method is called to process the instance'
+        embeddedInstanceQueueService.processEmbeddedInstanceQueue()
+
+        then: 'The embedded instance of TestDomainC within TestDomainD should be updated'
+        assert testDomainDInstance.refresh().emTestDomainC.name == 'Updated New Value'
     }
 }
