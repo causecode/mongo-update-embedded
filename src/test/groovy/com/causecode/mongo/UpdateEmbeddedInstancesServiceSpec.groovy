@@ -7,6 +7,7 @@
  */
 package com.causecode.mongo
 
+import com.causecode.validatable.BaseTestSetup
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.bson.types.ObjectId
@@ -15,13 +16,14 @@ import test.EmTestDomainA
 
 import test.TestDomainA
 import test.TestDomainB
+import test.TestDomainC
 
 /**
  * Test cases for UpdateEmbeddedInstancesService class.
  */
 @TestFor(UpdateEmbeddedInstancesService)
-@Mock([TestDomainA, TestDomainB, EmbeddedInstanceQueueService, EmbeddedInstanceQueue])
-class UpdateEmbeddedInstancesServiceSpec extends Specification {
+@Mock([TestDomainA, TestDomainB, TestDomainC, EmbeddedInstanceQueueService, EmbeddedInstanceQueue])
+class UpdateEmbeddedInstancesServiceSpec extends Specification implements BaseTestSetup {
 
     void 'test initializeEmbeddedDomainsMap for creating correct maps for TestDomainA and TestDomainB'() {
         when: 'The getEmbeddedDomainsMap method is called'
@@ -72,14 +74,29 @@ class UpdateEmbeddedInstancesServiceSpec extends Specification {
 
         embeddedInstanceQueueList[0].domainToUpdate == 'TestDomainB'
         embeddedInstanceQueueList[0].fieldToUpdate == 'testDomainA'
-        embeddedInstanceQueueList[0].isFieldArray == false
+        !embeddedInstanceQueueList[0].isFieldArray
         embeddedInstanceQueueList[0].sourceDomain == 'TestDomainA'
         embeddedInstanceQueueList[0].sourceDomainId == testDomainAInstance.id
 
         embeddedInstanceQueueList[1].domainToUpdate == 'TestDomainB'
         embeddedInstanceQueueList[1].fieldToUpdate == 'testDomainASet'
-        embeddedInstanceQueueList[1].isFieldArray == true
+        !embeddedInstanceQueueList[1].isFieldArray
         embeddedInstanceQueueList[1].sourceDomain == 'TestDomainA'
         embeddedInstanceQueueList[1].sourceDomainId == testDomainAInstance.id
+    }
+
+    void "test resolveFieldsForDirtiness method"() {
+        given: 'Instances of TestDomainA and TestDomainC'
+        TestDomainA testDomainA = createTestDomainA()
+        TestDomainC testDomainC = createTestDomainC(testDomainA.embeddedInstance)
+
+        when: 'resolveFieldsForDirtiness method is called with embedded instance of testDomainC'
+        List<String> listOfResolvedFields = service.resolveFieldsForDirtiness(testDomainC.embeddedInstance.class)
+
+        then: 'The following conditions must be satisfied'
+        listOfResolvedFields.size() == 8
+        ['name', 'collectionTypeListOfString', 'collectionTypeSetOfString',
+         'collectionTypeListOfInteger', 'collectionTypeSetOfInteger', 'collectionTypeListOfEnum',
+         'collectionTypeListOfObjects', 'mapOfString'] == listOfResolvedFields
     }
 }

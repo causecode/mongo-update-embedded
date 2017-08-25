@@ -10,7 +10,6 @@ package com.causecode.mongo
 import com.causecode.validatable.BaseTestSetup
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
-import org.bson.types.ObjectId
 import org.slf4j.Logger
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -43,18 +42,6 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
         }, error: { Object message, Throwable e = new Exception() ->
             logStatement = message
         } ] as Logger
-    }
-
-    TestDomainA createTestDomainA() {
-        TestDomainA testDomainAInstance = new TestDomainA()
-        testDomainAInstance.testField1 = 'Test 1'
-        testDomainAInstance.testField2 = 'Test 2'
-        testDomainAInstance.embeddingNonDomainField = new ObjectId()
-        testDomainAInstance.save(flush: true)
-
-        assert testDomainAInstance.id
-
-        return testDomainAInstance
     }
 
     EmbeddedInstanceQueue createEmbeddedInstanceQueue() {

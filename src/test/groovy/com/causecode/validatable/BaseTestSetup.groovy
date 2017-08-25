@@ -7,8 +7,10 @@
  */
 package com.causecode.validatable
 
+import org.bson.types.ObjectId
 import test.Car
 import test.EmTestDomainA
+import test.TestDomainA
 import test.TestDomainC
 
 /**
@@ -18,6 +20,18 @@ import test.TestDomainC
  * @since 0.0.7
  */
 trait BaseTestSetup {
+
+    TestDomainA createTestDomainA() {
+        TestDomainA testDomainAInstance = new TestDomainA()
+        testDomainAInstance.testField1 = 'Test 1'
+        testDomainAInstance.testField2 = 'Test 2'
+        testDomainAInstance.embeddingNonDomainField = new ObjectId()
+        testDomainAInstance.save(flush: true)
+
+        assert testDomainAInstance.id
+
+        return testDomainAInstance
+    }
 
     TestDomainC createTestDomainC(EmTestDomainA emTestDomainA) {
         List<String> listOfCars = ['Bugatti', 'Maserati', '']
