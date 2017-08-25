@@ -57,6 +57,10 @@ trait EmbeddableDomain implements Validateable {
      */
     @SuppressWarnings(['Instanceof'])
     Map toMap(Object instance = this) {
+        /**
+         * When the instance is of type Map and we use instance.class to get the `Class` of the instance, it tries to
+         * find the key named "class" inside the instance. So to avoid that instance.getClass() is used.
+         */
         Map embeddedData = instance.getClass().declaredFields.findAll { Field field ->
             /*
              * Return all non synthetic & non static fields and fields which implement Collection or Map interface.
@@ -85,7 +89,7 @@ trait EmbeddableDomain implements Validateable {
         }
         // Collect as map from non synthetic & non static fields
         .collectEntries { Field field ->
-            def value = instance[field.name]
+            def fieldValue = instance[field.name]
 
             /*
              * We can also check if the field type is not serializable to satisfy
@@ -95,24 +99,24 @@ trait EmbeddableDomain implements Validateable {
              * https://github.com/grails/grails-data-mapping/blob/master/grails-datastore-core/src/main/groovy/org/
              * grails/datastore/mapping/model/MappingFactory.java#L80
              */
-            if (value) {
-                if (value instanceof Enum) {
-                    value = getEnumValue(value)
+            if (fieldValue) {
+                if (fieldValue instanceof Enum) {
+                    fieldValue = getEnumValue(fieldValue)
                 } else {
-                    if (!MappingFactory.isSimpleType(value.getClass().name)) {
+                    if (!MappingFactory.isSimpleType(fieldValue.getClass().name)) {
                         // Means value is not a simple field, it must be some instance of other class
-                        def updatedValue = getValueForCollectionOrMap(field, value)
+                        def iterableValue = getValueForCollectionOrMap(field, fieldValue)
 
-                        if (updatedValue) {
-                            value = updatedValue
+                        if (iterableValue) {
+                            fieldValue = iterableValue
                         } else {
-                            value = toMap(value)
+                            fieldValue = toMap(fieldValue)
                         }
                     }
                 }
             }
 
-            [(field.name): value]
+            [(field.name): fieldValue]
         }
 
         return embeddedData
@@ -121,27 +125,27 @@ trait EmbeddableDomain implements Validateable {
     /**
      * This method checks whether the field type is of Collection or Map and based on that it converts it to Map.
      * @param field - {@link Field} instance for the class property
-     * @param value - value of the instance
+     * @param fieldValue - value of the instance
      *
      * @return Map representation or the same instance (In case of Simple field)
      */
-    def getValueForCollectionOrMap(Field field, def value) {
+    def getValueForCollectionOrMap(Field field, def fieldValue) {
         // If field is of type Collection
         if (Collection.isAssignableFrom(field.type)) {
-            return value.collect { def innerInstance ->
+            return fieldValue.collect { def innerInstance ->
                 return convertComplexType(innerInstance)
             }
         }
 
         // If field is of type Map
         if (Map.isAssignableFrom(field.type)) {
-            Map valueMap = [:]
+            Map fieldValueAsMap = [:]
 
-            value.entrySet().each { Map.Entry entry ->
-                valueMap[entry.key] = convertComplexType(entry.value)
+            fieldValue.entrySet().each { Map.Entry entry ->
+                fieldValueAsMap[entry.key] = convertComplexType(entry.value)
             }
 
-            return valueMap
+            return fieldValueAsMap
         }
     }
 
