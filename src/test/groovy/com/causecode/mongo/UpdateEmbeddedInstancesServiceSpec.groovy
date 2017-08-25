@@ -32,7 +32,7 @@ class UpdateEmbeddedInstancesServiceSpec extends Specification implements BaseTe
         then: 'The domainsThatEmbed and embeddedClassFields map should be correctly initialized'
         UpdateEmbeddedInstancesService.domainsThatEmbed == [TestDomainA: [TestDomainB: [[fieldName: 'testDomainA',
                 isFieldArray: false], [fieldName: 'testDomainASet', isFieldArray: true]],
-                TestDomainC: [[fieldName: 'collectionTypeListOfObjects', isFieldArray:true]]]]
+                TestDomainC: [[fieldName: 'collectionTypeListOfObjects', isFieldArray: true]]]]
         UpdateEmbeddedInstancesService.embeddedClassFields == [TestDomainA: [fieldList: ['testField1', 'status']]]
     }
 
