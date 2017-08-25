@@ -31,7 +31,8 @@ class UpdateEmbeddedInstancesServiceSpec extends Specification implements BaseTe
 
         then: 'The domainsThatEmbed and embeddedClassFields map should be correctly initialized'
         UpdateEmbeddedInstancesService.domainsThatEmbed == [TestDomainA: [TestDomainB: [[fieldName: 'testDomainA',
-                isFieldArray: false], [fieldName: 'testDomainASet', isFieldArray: true]]]]
+                isFieldArray: false], [fieldName: 'testDomainASet', isFieldArray: true]],
+                TestDomainC: [[fieldName: 'collectionTypeListOfObjects', isFieldArray:true]]]]
         UpdateEmbeddedInstancesService.embeddedClassFields == [TestDomainA: [fieldList: ['testField1', 'status']]]
     }
 
@@ -70,7 +71,7 @@ class UpdateEmbeddedInstancesServiceSpec extends Specification implements BaseTe
         then: 'Instances of EmbeddedInstanceQueue should be created'
         List<EmbeddedInstanceQueue> embeddedInstanceQueueList = EmbeddedInstanceQueue.list(sort: 'dateCreated', max: 10)
 
-        embeddedInstanceQueueList.size() == 2
+        embeddedInstanceQueueList.size() == 3
 
         embeddedInstanceQueueList[0].domainToUpdate == 'TestDomainB'
         embeddedInstanceQueueList[0].fieldToUpdate == 'testDomainA'
@@ -80,7 +81,7 @@ class UpdateEmbeddedInstancesServiceSpec extends Specification implements BaseTe
 
         embeddedInstanceQueueList[1].domainToUpdate == 'TestDomainB'
         embeddedInstanceQueueList[1].fieldToUpdate == 'testDomainASet'
-        !embeddedInstanceQueueList[1].isFieldArray
+        embeddedInstanceQueueList[1].isFieldArray
         embeddedInstanceQueueList[1].sourceDomain == 'TestDomainA'
         embeddedInstanceQueueList[1].sourceDomainId == testDomainAInstance.id
     }
