@@ -117,8 +117,15 @@ class UpdateEmbeddedInstancesService {
      */
     List<String> resolveFieldsForDirtiness(Class emClazz) {
         return emClazz?.declaredFields.findAll { Field field ->
-            !field.synthetic && !Modifier.isStatic(field.modifiers) && !field.type.isInterface() &&
-                    !field.name.contains('beforeValidateHelper') && (!(field.name == 'instanceId'))
+            if (!field.synthetic && !Modifier.isStatic(field.modifiers) && !field.name.contains('beforeValidateHelper')
+                    && (!(field.name == 'instanceId'))) {
+
+                if (Collection.isAssignableFrom(field.type) || Map.isAssignableFrom(field.type)) {
+                    return true
+                }
+
+                return !field.type.isInterface()
+            }
         }*.name
     }
 

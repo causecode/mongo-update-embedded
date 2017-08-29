@@ -7,18 +7,20 @@
  */
 package com.causecode.mongo.embeddable
 
+import com.causecode.validatable.BaseTestSetup
 import grails.test.mixin.Mock
 import org.bson.types.ObjectId
 import spock.lang.Specification
 import test.EmTestDomainA
 import test.EmTestDomainB
 import test.TestDomainA
+import test.TestDomainC
 
 /**
  * Test cases for TestDomainA class.
  */
-@Mock([TestDomainA])
-class EmbeddableDomainSpec extends Specification {
+@Mock([TestDomainA, TestDomainC])
+class EmbeddableDomainSpec extends Specification implements BaseTestSetup {
 
     TestDomainA testDomainAInstance
 
@@ -113,5 +115,33 @@ class EmbeddableDomainSpec extends Specification {
 
         // Matching with same class but different instanceId will return false
         !(emTestDomainA == new EmTestDomainA())
+    }
+
+    void 'test toMap method when there is a Collection type present in the Domain class'() {
+        given: 'An instance of TestDomainC'
+        TestDomainC testDomainCInstance = createTestDomainC(testDomainAInstance.embeddedInstance)
+
+        when: 'toMap method is called'
+        Map instancePropertiesMap = testDomainCInstance.embeddedInstance.toMap()
+
+        then: 'Following conditions must be satisfied'
+        instancePropertiesMap.instanceId == testDomainCInstance.id
+        instancePropertiesMap.name == testDomainCInstance.name
+
+        instancePropertiesMap.collectionTypeListOfString == testDomainCInstance.collectionTypeListOfString
+        instancePropertiesMap.collectionTypeListOfInteger == testDomainCInstance.collectionTypeListOfInteger
+
+        instancePropertiesMap.collectionTypeSetOfInteger as Set == testDomainCInstance.collectionTypeSetOfInteger as Set
+        instancePropertiesMap.collectionTypeSetOfString as Set == testDomainCInstance.collectionTypeSetOfString as Set
+
+        instancePropertiesMap.collectionTypeListOfEnum.eachWithIndex { String car, int index ->
+            assert car == testDomainCInstance.collectionTypeListOfEnum[index].name()
+        }
+
+        instancePropertiesMap.collectionTypeListOfObjects.eachWithIndex { Map map, int index ->
+            assert map.instanceId == testDomainCInstance.collectionTypeListOfObjects[index].instanceId
+            assert map.testField1 == testDomainCInstance.collectionTypeListOfObjects[index].testField1
+            assert map.status == testDomainCInstance.collectionTypeListOfObjects[index].status.id
+        }
     }
 }
