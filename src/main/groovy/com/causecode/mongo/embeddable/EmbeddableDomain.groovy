@@ -25,7 +25,7 @@ import org.grails.datastore.mapping.model.MappingFactory
 trait EmbeddableDomain implements Validateable {
 
     static String resolveParentDomainClass() {
-        return this.simpleName.replace('Em', '')
+        return this.simpleName.replaceFirst('Em', '')
     }
 
     def methodMissing(String methodName, args) {
