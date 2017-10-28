@@ -13,6 +13,7 @@ import org.bson.types.ObjectId
 import spock.lang.Specification
 import test.EmTestDomainA
 import test.EmTestDomainB
+import test.EmTestEmailDomain
 import test.TestDomainA
 import test.TestDomainC
 
@@ -38,10 +39,12 @@ class EmbeddableDomainSpec extends Specification implements BaseTestSetup {
 
     void 'test resolveParentDomainClass method to return parent domain class name'() {
         when: 'The resolveParentDomainClass method is called'
-        String domainName = EmTestDomainA.resolveParentDomainClass()
+        String domainName1 = EmTestDomainA.resolveParentDomainClass()
+        String domainName2 = EmTestEmailDomain.resolveParentDomainClass()
 
-        then: 'TestDomainA should be received'
-        domainName == 'TestDomainA'
+        then: 'The name of the parent domain class with Em prefix truncated should be received.'
+        domainName1 == 'TestDomainA'
+        domainName2 == 'TestEmailDomain'
     }
 
     void 'test dynamic getActualInstance method'() {
