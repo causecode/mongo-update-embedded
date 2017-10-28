@@ -42,7 +42,7 @@ class EmbeddableDomainSpec extends Specification implements BaseTestSetup {
         String domainName1 = EmTestDomainA.resolveParentDomainClass()
         String domainName2 = EmTestEmailDomain.resolveParentDomainClass()
 
-        then: 'TestDomainA should be received'
+        then: 'The name of the parent domain class with Em prefix truncated should be received.'
         domainName1 == 'TestDomainA'
         domainName2 == 'TestEmailDomain'
     }

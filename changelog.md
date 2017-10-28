@@ -5,7 +5,6 @@
 ###Fixed
 1. resolveParentDomainClass method in Embeddable domain class. It was replacing all the occurrences of `Em`.
 Changed to replace just the first Occurrence.
-2. Related test cases.
 
 ## [0.0.7] - 2017-08-24
 
