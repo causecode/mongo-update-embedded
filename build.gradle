@@ -12,7 +12,7 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.causecode.plugins:gradle-code-quality:0.0.8"
+        classpath "com.causecode.plugins:gradle-code-quality:1.0.0"
     }
 }
 
@@ -119,3 +119,4 @@ jar {
 integrationTest {
     reports.html.enabled true
 }
+
