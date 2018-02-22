@@ -1,6 +1,6 @@
 ## Mongo Update Embedded Plugin for Grails 3.1.x
 
-Latest Version (0.0.7)
+Latest Version (0.0.9)
 
 ### Installation
 
