@@ -25,9 +25,13 @@ class TestDomainD {
 
     EmTestDomainC emTestDomainC
 
+    Date dateCreated
+    Date lastUpdated
+
     static embedded = ['emTestDomainC']
 
     static constraints = {
-
+        dateCreated bindable: false
+        lastUpdated bindable: false
     }
 }

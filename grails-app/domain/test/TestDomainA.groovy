@@ -28,6 +28,9 @@ class TestDomainA {
 
     Status status = Status.ONE
 
+    Date dateCreated
+    Date lastUpdated
+
     EmTestDomainA getEmbeddedInstance() {
         return new EmTestDomainA(this.id, this.testField1, this.status)
     }
@@ -35,6 +38,8 @@ class TestDomainA {
     static embedded = ['embeddingNonDomainField']
 
     static constraints = {
+        dateCreated bindable: false
+        lastUpdated bindable: false
     }
 
     @Override
