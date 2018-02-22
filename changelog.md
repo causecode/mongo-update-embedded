@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.9] - [Unreleased]
+
+###Changed
+- Developer can configure the scheduling of update embedded instance job from the installing app.
+
 ## [0.0.8] - 2017-10-27
 
 ###Fixed

@@ -34,6 +34,19 @@ You will have to create a class that will represent embedded objects of the pare
 
 This class needs to implement the trait `EmbeddableDomain` which contains some necessary methods to treat a class as an embeddable class.
 
+** Override the Update embedded instance job schedule **
+By default it is set to update at every 2 minutes but if you want to override the schedule, Add the following block in the `application.groovy` of installing app.
+
+```
+// Override start and repeatInterval of UpdateEmbeddedInstancesJob
+jobs {
+    mongo.update.embedded {
+        startDelay = 120000 // 120 Seconds
+        repeatInterval = 30000 // 30 seconds
+    }
+}
+```
+
 **Example:** For a domain class `User` you can create an embedded class called `EmUser` under `src/main/groovy`.
 
 ```
