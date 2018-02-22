@@ -23,8 +23,8 @@ class UpdateEmbeddedInstancesJob {
     static final long TWO_MINUTES = 120000
 
     static triggers = {
-        simple startDelay: Holders.config.embeddedinstanceupdate.startDelay ?: TWO_MINUTES,
-        repeatInterval: Holders.config.embeddedinstanceupdate.repeatInterval ?: TWO_MINUTES
+        simple startDelay: Holders.config.jobs.mongo.update.embedded.startDelay ?: TWO_MINUTES,
+        repeatInterval: Holders.config.jobs.mongo.update.embedded.repeatInterval ?: TWO_MINUTES
     }
 
     def execute() {
