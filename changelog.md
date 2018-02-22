@@ -2,8 +2,8 @@
 
 ## [0.0.9] - [Unreleased]
 
-###Changed
-- Developer can configure the scheduling of update embedded instance job from the installing app.
+### Added
+- Functionality to externalize the scheduling of UpdateEmbeddedInstancesJob.
 
 ## [0.0.8] - 2017-10-27
 

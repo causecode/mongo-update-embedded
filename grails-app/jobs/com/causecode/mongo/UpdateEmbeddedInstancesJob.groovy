@@ -10,8 +10,8 @@ package com.causecode.mongo
 import grails.util.Holders
 
 /**
- * This Job is used for processing the pending embedded instances queue. This job starts with a delay of 2 minutes
- * and repeats every 2 minutes.
+ * This Job is used for processing the pending embedded instances queue. This job starts with overridden startDelay and
+ * repeatInterval provided by installing app otherwise with a default delay of 2 minutes and repeats every 2 minutes.
  *
  * @author Nikhil Sharma
  * @since 0.0.1
