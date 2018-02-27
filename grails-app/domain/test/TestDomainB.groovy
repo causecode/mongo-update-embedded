@@ -27,9 +27,14 @@ class TestDomainB {
     EmTestDomainA testDomainA
     Set<EmTestDomainA> testDomainASet
 
+    Date dateCreated
+    Date lastUpdated
+
     static embedded = ['testDomainA', 'testDomainASet']
 
     static constraints = {
+        dateCreated bindable: false
+        lastUpdated bindable: false
     }
 
     @Override

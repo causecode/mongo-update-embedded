@@ -87,6 +87,7 @@ trait EmbeddableDomain implements Validateable {
                 return !field.type.isInterface()
             }
         }
+
         // Collect as map from non synthetic & non static fields
         .collectEntries { Field field ->
             def fieldValue = instance[field.name]

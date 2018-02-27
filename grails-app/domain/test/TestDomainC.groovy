@@ -38,7 +38,15 @@ class TestDomainC {
 
     Map<String, String> mapOfString = [:]
 
+    Date dateCreated
+    Date lastUpdated
+
     static embedded = ['collectionTypeListOfObjects']
+
+    static constraints = {
+        dateCreated bindable: false
+        lastUpdated bindable: false
+    }
 
     EmTestDomainC getEmbeddedInstance() {
         return new EmTestDomainC([
