@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.9] - [Unreleased]
+## [0.0.9] - 2018-03-26
 
 ### Added
 - Functionality to externalize the scheduling of UpdateEmbeddedInstancesJob.

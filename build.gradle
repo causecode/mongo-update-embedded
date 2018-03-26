@@ -12,7 +12,7 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.causecode.plugins:gradle-code-quality:1.0.0"
+        classpath "com.causecode.plugins:gradle-code-quality:1.0.2"
     }
 }
 
@@ -110,6 +110,7 @@ ccJacocoExt {
     ]
 
     includeIntegrationTest = true
+
 }
 
 jar {
