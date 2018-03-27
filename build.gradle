@@ -110,7 +110,7 @@ ccJacocoExt {
     ]
 
     includeIntegrationTest = true
-
+    ignoreCompleteCoverageVerification = true
 }
 
 jar {
