@@ -152,7 +152,7 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
         testDomainBInstance.refresh().testDomainA.testField1 == 'Update test field 1'
     }
 
-    @ConfineMetaClassChanges([TestDomainB])
+    @ConfineMetaClassChanges([TestDomainB, TestDomainC])
     void 'test for marking EmbeddedQueueInstance status as FAILED when 3 attempts fails to update it'() {
         given: 'An instance of TestDomainA'
         TestDomainA testDomainAInstance = createTestDomainA()
@@ -165,7 +165,13 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
 
         and: 'Mocked lower level update call to throw exception'
         TestDomainB.metaClass.'static'.getCollection = {
-            return ['update': { Map query, Map update, Map options ->
+            return ['updateMany': { Map query, Map update, Map options ->
+                throw new IllegalArgumentException()
+            } ]
+        }
+
+        TestDomainC.metaClass.'static'.getCollection = {
+            return ['updateMany': { Map query, Map update, Map options ->
                 throw new IllegalArgumentException()
             } ]
         }

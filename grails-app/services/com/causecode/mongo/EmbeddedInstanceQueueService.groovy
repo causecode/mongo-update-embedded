@@ -131,8 +131,11 @@ class EmbeddedInstanceQueueService {
 
                 Map embeddedMap = sourceDomainInstance.embeddedInstance.toMap()
 
+                boolean hasLastUpdatedField = classToUpdate.declaredFields?.name?.contains('lastUpdated')
+
                 Map query = [(fieldToMatch): sourceDomainInstance.id]
-                Map updateOperation = [(MongoConstants.SET_OPERATOR): [(fieldToUpdate): embeddedMap]]
+                Map updateOperation = [(MongoConstants.SET_OPERATOR): hasLastUpdatedField ?
+                        [(fieldToUpdate): embeddedMap, 'lastUpdated': new Date()] : [(fieldToUpdate): embeddedMap]]
 
                 log.debug "Match query: $query, Update operation: $updateOperation and update data: $embeddedMap"
 
