@@ -15,6 +15,10 @@ apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"org.grails.grails-plugin"
 apply plugin:"jacoco"
+apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
 repositories {
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
@@ -28,14 +32,14 @@ dependencyManagement {
 }
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.springframework.boot:spring-boot-starter-logging:1.4.0.RELEASE"
+    compile "org.springframework.boot:spring-boot-autoconfigure:1.4.0.RELEASE"
+    compile "org.springframework.boot:spring-boot-starter-tomcat:1.4.0.RELEASE"
 
-    compile "org.grails:grails-core"
-    compile "org.grails:grails-logging"
+    compile "org.grails:grails-core:3.2.0"
+    compile "org.grails:grails-logging:3.2.0"
 
-    compile "org.grails:grails-plugin-services"
+    compile "org.grails:grails-plugin-services:3.2.0"
     provided "org.grails:grails-plugin-url-mappings"
     provided "org.grails:grails-plugin-domain-class"
 
@@ -73,7 +77,7 @@ jacocoTestReport {
 }
 
 signing {
-//    useGpgCmd()
+    useGpgCmd()
     sign configurations.archives
 }
 
