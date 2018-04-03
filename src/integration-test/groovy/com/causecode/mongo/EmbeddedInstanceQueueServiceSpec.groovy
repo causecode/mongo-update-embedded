@@ -18,6 +18,8 @@ import test.TestDomainA
 import test.TestDomainB
 import test.TestDomainC
 import test.TestDomainD
+import test.TestDomainE
+import test.TestEmailDomain
 
 /**
  * Test cases for EmbeddedInstanceQueueService class.
@@ -135,6 +137,8 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
 
         assert testDomainBInstance.toString() == "TestDomainB (${testDomainBInstance.id})".toString()
 
+        Date lastUpdatedDatePreUpdate = testDomainBInstance.lastUpdated
+
         and: 'The TestDomainA is updated'
         testDomainAInstance.testField1 = 'Update test field 1'
         testDomainAInstance.save(flush: true)
@@ -149,10 +153,12 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
         embeddedInstanceQueueService.processEmbeddedInstanceQueue()
 
         then: 'The embedded instance within TestDomainB should be updated'
+        Date lastUpdatedDatePostUpdate = testDomainBInstance.refresh().lastUpdated
         testDomainBInstance.refresh().testDomainA.testField1 == 'Update test field 1'
+        lastUpdatedDatePostUpdate <=> lastUpdatedDatePreUpdate == 1 // lastUpdated date was updated.
     }
 
-    @ConfineMetaClassChanges([TestDomainB])
+    @ConfineMetaClassChanges([TestDomainB, TestDomainC])
     void 'test for marking EmbeddedQueueInstance status as FAILED when 3 attempts fails to update it'() {
         given: 'An instance of TestDomainA'
         TestDomainA testDomainAInstance = createTestDomainA()
@@ -165,7 +171,13 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
 
         and: 'Mocked lower level update call to throw exception'
         TestDomainB.metaClass.'static'.getCollection = {
-            return ['update': { Map query, Map update, Map options ->
+            return ['updateMany': { Map query, Map update, Map options ->
+                throw new IllegalArgumentException()
+            } ]
+        }
+
+        TestDomainC.metaClass.'static'.getCollection = {
+            return ['updateMany': { Map query, Map update, Map options ->
                 throw new IllegalArgumentException()
             } ]
         }
@@ -270,5 +282,30 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
 
         then: 'The embedded instance of TestDomainC within TestDomainD should be updated'
         assert testDomainDInstance.refresh().emTestDomainC.name == 'Updated New Value'
+    }
+
+    void 'test complete cycle for PreUpdateEventListener when domain instance does not contain timestamp fields'() {
+        given: 'An instance of TestDomainE and TestEmailDomain'
+        TestEmailDomain testEmailDomain = new TestEmailDomain(email: 'user@test.com').save(flush: true)
+        TestDomainE testDomainE = new TestDomainE(emTestEmailDomain: testEmailDomain.embeddedInstance).save(flush: true)
+
+        assert testEmailDomain.id
+        assert testDomainE.id
+
+        and: 'The TestEmailDomain is updated'
+        testEmailDomain.email = 'updated_user@test.com'
+        assert testEmailDomain.isDirty()
+
+        testEmailDomain.save(flush: true)
+
+        assert testEmailDomain.email == 'updated_user@test.com'
+        assert EmbeddedInstanceQueue.count() == 1
+
+        when: 'The processEmbeddedInstanceQueue method is called to process the instance'
+        embeddedInstanceQueueService.processEmbeddedInstanceQueue()
+
+        then: 'The embedded instance of TestEmailDomain within TestDomainE should be updated'
+        assert testDomainE.refresh().emTestEmailDomain.email == 'updated_user@test.com'
+        noExceptionThrown()
     }
 }

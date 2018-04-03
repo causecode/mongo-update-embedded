@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.0] - [Unpublished]
+
+### Added
+- Functionality to update "lastUpdated" timestamp field along with embedded class fields.
+
 ## [0.0.9] - 2018-03-26
 
 ### Added
