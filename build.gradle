@@ -127,6 +127,26 @@ uploadArchives {
     }
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifactId "mongo-update-embedded"
+
+            pom.withXml {
+                def pomNode = asNode()
+                // version-less dependencies are handled with dependencyManagement
+                pomNode.dependencies.dependency.findAll {
+                    it.version.text().isEmpty()
+                }.each {
+                    it.replaceNode {}
+                }
+            }
+        }
+    }
+}
+
 jar {
     exclude('test/**')
 }
