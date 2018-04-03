@@ -53,6 +53,6 @@ jobs:
           name: Run tests
           command: |
             ./cc-test-reporter before-build
-            ./gradlew clean test integrationTest jacocoTestReport
+            ./gradlew clean test jacocoTestReport
             ./cc-test-reporter format-coverage --input-type jacoco -d ./build/jacoco/jacocoXml/jacoco.xml
             ./cc-test-reporter upload-coverage
