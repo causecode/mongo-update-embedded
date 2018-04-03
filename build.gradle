@@ -1,18 +1,16 @@
 buildscript {
-    repositories {
-        maven { url "https://repo.grails.org/grails/core" }
-        mavenLocal()
-        maven {
-            credentials {
-                username mavenUser
-                password mavenPassword
-            }
-            url "https://nexus.causecode.com/repository/maven-releases/"
+    ext  {
+        mavenRepos = {
+            mavenLocal()
+            maven { url "https://plugins.gradle.org/m2/" }
+            maven { url "https://repo.grails.org/grails/core" }
+            mavenCentral()
         }
     }
+
+    repositories mavenRepos
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.causecode.plugins:gradle-code-quality:1.0.2"
     }
 }
 
@@ -22,13 +20,12 @@ group "com.causecode.plugins"
 apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"org.grails.grails-plugin"
-apply plugin:"org.grails.grails-plugin-publish"
-apply plugin:"gradle-code-quality"
+apply plugin:"jacoco"
+apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
-repositories {
-    mavenLocal()
-    maven { url "https://repo.grails.org/grails/core" }
-}
+repositories mavenRepos
 
 dependencyManagement {
     imports {
@@ -38,14 +35,14 @@ dependencyManagement {
 }
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.springframework.boot:spring-boot-starter-logging:1.4.0.RELEASE"
+    compile "org.springframework.boot:spring-boot-autoconfigure:1.4.0.RELEASE"
+    compile "org.springframework.boot:spring-boot-starter-tomcat:1.4.0.RELEASE"
 
-    compile "org.grails:grails-core"
-    compile "org.grails:grails-logging"
+    compile "org.grails:grails-core:3.2.0"
+    compile "org.grails:grails-logging:3.2.0"
 
-    compile "org.grails:grails-plugin-services"
+    compile "org.grails:grails-plugin-services:3.2.0"
     provided "org.grails:grails-plugin-url-mappings"
     provided "org.grails:grails-plugin-domain-class"
 
@@ -58,6 +55,76 @@ dependencies {
     profile "org.grails.profiles:plugin"
 
     testCompile "org.grails:grails-plugin-testing"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled true
+        html.destination "${buildDir}/jacoco/jacocoHtml/"
+        xml.destination "${buildDir}/jacoco/jacocoXml/jacoco.xml"
+    }
+
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: [
+                            '**/*UpdateEmbeddedInstancesJob.*/**',
+                            '**/*Application.*/**'
+                    ])
+        })
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'mongo-update-embedded'
+                packaging 'jar'
+                description 'This plugin is used to update embedded instances when parent class gets updated.'
+                url 'https://github.com/causecode/mongo-update-embedded'
+
+                scm {
+                    url 'scm:svn:https://github.com/causecode/mongo-update-embedded'
+                    connection 'scm:svn:https://github.com/causecode/mongo-update-embedded.git'
+                    developerConnection 'https://github.com:causecode/mongo-update-embedded.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'causecode'
+                        name 'CauseCode Technologies'
+                        email 'bootstrap@causecode.com'
+                    }
+                }
+            }
+        }
+    }
 }
 
 publishing {
@@ -78,39 +145,6 @@ publishing {
             }
         }
     }
-    repositories {
-        maven {
-            credentials {
-                username mavenPublishUser
-                password mavenPublishPassword
-            }
-            url "https://nexus.causecode.com/repository/maven-releases/"
-        }
-    }
-}
-
-grailsPublish {
-    // TODO: Provide values here
-    user = 'user'
-    key = 'key'
-    githubSlug = 'foo/bar'
-    license {
-        name = 'Apache-2.0'
-    }
-    title = "My Plugin"
-    desc = "Full plugin description"
-    developers = [johndoe:"John Doe"]
-    portalUser = ""
-    portalPassword = ""
-}
-
-ccJacocoExt {
-    excludes = [
-            '**/*UpdateEmbeddedInstancesJob.*/**', '**/*Application.*/**'
-    ]
-
-    includeIntegrationTest = true
-    ignoreCompleteCoverageVerification = true
 }
 
 jar {
@@ -119,5 +153,9 @@ jar {
 
 integrationTest {
     reports.html.enabled true
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = gradleWrapperVersion
 }
 

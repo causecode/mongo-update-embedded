@@ -1,14 +1,3 @@
-/*
- * Copyright (c) 2011-Present, CauseCode Technologies Pvt Ltd, India.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or
- * without modification, are not permitted.
- */
-package com.causecode.quality.configurations.codenarc
-
-import groovy.transform.EqualsAndHashCode
-
 ruleset {
     // rulesets/basic.xml
     AssertWithinFinallyBlock
@@ -207,21 +196,6 @@ ruleset {
                 '*Service,scope,sessionFactory,transactional,elasticSearchHelper'
     }
 
-    // Custom rule for Grails max parameter in list queries.
-    rule('file:./code-climate-codenarc/GrailsMaxForListQueriesRule.groovy')
-
-    // Custom rule for timestamp fields in Grails domain classes.
-    rule('file:./code-climate-codenarc/GrailsDomainTimestampFieldsRule.groovy')
-
-    // Custom rule validating empty line after closing brace.
-    rule('file:./code-climate-codenarc/EmptyLineAfterClosingBraceRule.groovy')
-
-    // Custom rule validating method arguments.
-    rule('file:./code-climate-codenarc/MapAsMethodParameterRule.groovy')
-
-    // Custom rule to avoid manipulation of method/closure parameters
-    rule('file:./code-climate-codenarc/CanNotModifyReferenceRule.groovy')
-
     // rulesets/groovyism.xml
     AssignCollectionSort
     AssignCollectionUnique
@@ -321,7 +295,7 @@ ruleset {
     }
     FieldName {
         regex = '^_?[a-z][a-zA-Z0-9]*$'
-        finalRegex = '^[A-Z][A-Z_0-9]*$'
+        finalRegex = '^_?[a-z][a-zA-Z0-9]*$'
         staticFinalRegex = '^logger$|^[A-Z][A-Z_0-9]*$|^serialVersionUID$'
     }
     InterfaceName
