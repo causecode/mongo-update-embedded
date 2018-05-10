@@ -17,8 +17,6 @@ class TestEmailDomain {
     Date dateCreated
     Date lastUpdated
 
-    static embedded = []
-
     static constraints = {
         dateCreated bindable: false
         lastUpdated bindable: false

@@ -51,8 +51,17 @@ class UpdateEmbeddedInstancesService {
             String currentDomainClassName = domainClass.name
             Map domainInfoMap = [(currentDomainClassName): []]
 
+            List<String> embeddedFields
+            try {
+                embeddedFields = domainClass.clazz.embedded
+            } catch (MissingPropertyException exception) {
+                log.info "Domain ${currentDomainClassName} has no embedded classes."
+
+                return
+            }
+
             // Iterating all embedded fields.
-            domainClass.clazz.embedded.each { String fieldName ->
+            embeddedFields.each { String fieldName ->
 
                 Field field = domainClass.clazz.getDeclaredField(fieldName)
                 Map fieldInfoMap = [fieldName: fieldName, isFieldArray: false]
