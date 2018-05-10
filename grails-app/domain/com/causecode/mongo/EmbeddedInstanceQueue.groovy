@@ -31,6 +31,8 @@ class EmbeddedInstanceQueue {
 
     int attemptCount
 
+    static embedded = []
+
     static constraints = {
     }
 

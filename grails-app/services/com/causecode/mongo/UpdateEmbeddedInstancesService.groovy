@@ -5,7 +5,6 @@ import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
-import org.grails.core.DefaultGrailsDomainClass
 
 /**
  * This is the base service of this plugin which is responsible for creating the in memory maps, embedded instance
@@ -47,13 +46,13 @@ class UpdateEmbeddedInstancesService {
         }
 
         // Iterating all domain classes.
-        grailsApplication.domainClasses.each { DefaultGrailsDomainClass domainClass ->
+        grailsApplication.domainClasses.each { domainClass ->
 
             String currentDomainClassName = domainClass.name
             Map domainInfoMap = [(currentDomainClassName): []]
 
             // Iterating all embedded fields.
-            domainClass.embedded.each { String fieldName ->
+            domainClass.clazz.embedded.each { String fieldName ->
 
                 Field field = domainClass.clazz.getDeclaredField(fieldName)
                 Map fieldInfoMap = [fieldName: fieldName, isFieldArray: false]
