@@ -57,7 +57,7 @@ class UpdateEmbeddedInstancesService {
             } catch (MissingPropertyException exception) {
                 log.info "Domain ${currentDomainClassName} has no embedded classes."
 
-                return
+                return false
             }
 
             // Iterating all embedded fields.
