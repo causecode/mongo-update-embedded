@@ -1,6 +1,8 @@
 package com.causecode.mongo
 
 import grails.core.GrailsApplication
+import org.grails.core.DefaultGrailsDomainClass
+
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
@@ -46,7 +48,7 @@ class UpdateEmbeddedInstancesService {
         }
 
         // Iterating all domain classes.
-        grailsApplication.domainClasses.each { domainClass ->
+        grailsApplication.domainClasses.each { DefaultGrailsDomainClass domainClass ->
 
             String currentDomainClassName = domainClass.name
             Map domainInfoMap = [(currentDomainClassName): []]
