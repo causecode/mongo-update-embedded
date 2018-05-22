@@ -27,6 +27,13 @@ apply plugin: 'signing'
 
 repositories mavenRepos
 
+dependencyManagement {
+    imports {
+        mavenBom "org.grails:grails-bom:$grailsVersion"
+    }
+    applyMavenExclusions false
+}
+
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging:1.5.12.RELEASE"
     compile "org.springframework.boot:spring-boot-autoconfigure:1.5.12.RELEASE"
