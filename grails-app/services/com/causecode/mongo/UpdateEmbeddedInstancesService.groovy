@@ -53,12 +53,9 @@ class UpdateEmbeddedInstancesService {
             String currentDomainClassName = domainClass.name
             Map domainInfoMap = [(currentDomainClassName): []]
 
-            /*
-             * Class DefaultGrailsDomainClass has been deprecated so it was throwing {@link MissingPropertyException}
-             * when a domain has no embedded property.
-             */
             List<String> embeddedFields
             try {
+                // when a domain has no embedded property, it throws MissingPropertyException.
                 embeddedFields = domainClass.clazz.embedded
             } catch (MissingPropertyException exception) {
                 log.debug "Domain ${currentDomainClassName} has no embedded classes."
