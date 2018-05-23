@@ -1,8 +1,10 @@
 package com.causecode.mongo
 
+import com.causecode.logger.ReplaceSlf4jLogger
 import com.causecode.validatable.BaseTestSetup
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
+import org.junit.Rule
 import org.slf4j.Logger
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -23,21 +25,8 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
 
     EmbeddedInstanceQueueService embeddedInstanceQueueService
 
-    Object logStatement
-
-    void setup() {
-        // Reset for each test case.
-        logStatement = null
-
-        // Mocking the logger calls to test the log statements.
-        embeddedInstanceQueueService.log = [debug: { Object message ->
-            logStatement = message
-        }, info: { Object message ->
-            logStatement = message
-        }, error: { Object message, Throwable e = new Exception() ->
-            logStatement = message
-        } ] as Logger
-    }
+    Logger logger= Mock(Logger)
+    @Rule ReplaceSlf4jLogger replaceSlf4jLogger = new ReplaceSlf4jLogger(EmbeddedInstanceQueueService, logger)
 
     EmbeddedInstanceQueue createEmbeddedInstanceQueue() {
         Map propertyMap = [domainToUpdate: 'TestDomainB', fieldToUpdate: 'testDomainA', isFieldArray: false,
@@ -65,8 +54,8 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
         then: 'New instance will not be created'
         EmbeddedInstanceQueue.count() == 1
         EmbeddedInstanceQueue.first() == embeddedInstanceQueueInstance
-        logStatement == "Found active record for [${embeddedInstanceQueueInstance.domainToUpdate}] from " +
-                "[${embeddedInstanceQueueInstance.sourceDomain}]"
+        logger.debug("Found active record for [${embeddedInstanceQueueInstance.domainToUpdate}] from " +
+                "[${embeddedInstanceQueueInstance.sourceDomain}]")
     }
 
     void 'test addToQueue method when EmbeddedInstanceQueues property map is incorrect'() {
@@ -88,7 +77,7 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
 
         then: 'New instance will not be created'
         EmbeddedInstanceQueue.count() == 0
-        logStatement == "Failed to create EmbeddedInstanceQueue instance due to ${embeddedInstanceQueueInstance.errors}"
+        logger.error("Failed to create EmbeddedInstanceQueue instance due to ${embeddedInstanceQueueInstance.errors}")
     }
 
     void 'test processEmbeddedInstanceQueue method to process all active instances of EmbeddedInstanceQueue'() {
@@ -116,8 +105,8 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
         when: 'The processEmbeddedInstanceQueue method is called to process the instance'
         embeddedInstanceQueueService.processEmbeddedInstanceQueue()
 
-        then: 'It should throw NullPointerException and the logStatement should reflect the error'
-        logStatement == "Error updating queued embedded instance [$embeddedInstanceQueueInstance]"
+        then: 'It should throw NullPointerException and the log should reflect the error'
+        logger.error("Error updating queued embedded instance [$embeddedInstanceQueueInstance]")
     }
 
     void 'test complete cycle for PreUpdateEventListener when a domain instance is updated'() {
@@ -218,11 +207,11 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
 
         when: 'Status changed to FAILED and processEmbeddedInstanceQueue is called the next time'
         // Reset the log.
-        logStatement = null
+        logger.debug(null)
         embeddedInstanceQueueService.processEmbeddedInstanceQueue()
 
         then: 'No records should be fetched'
-        logStatement == null
+        logger.debug(null)
     }
 
     @Unroll
@@ -242,7 +231,7 @@ class EmbeddedInstanceQueueServiceSpec extends Specification implements BaseTest
         embeddedInstanceQueueService.processEmbeddedInstanceQueue()
 
         then: 'There should be zero records to process.'
-        logStatement == null
+        logger.debug(null)
 
         where:
         attemptCount | status

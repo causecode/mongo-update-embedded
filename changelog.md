@@ -1,6 +1,10 @@
 # Changelog
 
-## [1.0.0] - [Unpublished]
+## [2.0.0] - [Unreleased]
+### Changed
+- Upgraded the plugin to support grails 3.3.5
+
+## [1.0.0] - [2018-04-04]
 
 ### Added
 - Functionality to update "lastUpdated" timestamp field along with embedded class fields.

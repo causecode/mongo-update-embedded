@@ -1,11 +1,12 @@
 package com.causecode.mongo
 
 import grails.core.GrailsApplication
+import org.grails.core.DefaultGrailsDomainClass
+
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
-import org.grails.core.DefaultGrailsDomainClass
 
 /**
  * This is the base service of this plugin which is responsible for creating the in memory maps, embedded instance
@@ -52,8 +53,18 @@ class UpdateEmbeddedInstancesService {
             String currentDomainClassName = domainClass.name
             Map domainInfoMap = [(currentDomainClassName): []]
 
+            List<String> embeddedFields
+            try {
+                // when a domain has no embedded property, it throws MissingPropertyException.
+                embeddedFields = domainClass.clazz.embedded
+            } catch (MissingPropertyException exception) {
+                log.debug "Domain ${currentDomainClassName} has no embedded classes."
+
+                return false
+            }
+
             // Iterating all embedded fields.
-            domainClass.embedded.each { String fieldName ->
+            embeddedFields.each { String fieldName ->
 
                 Field field = domainClass.clazz.getDeclaredField(fieldName)
                 Map fieldInfoMap = [fieldName: fieldName, isFieldArray: false]
