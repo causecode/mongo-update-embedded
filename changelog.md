@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.0.1] - [Unreleased]
+### Changed
+- Added version for grails plugin testing to fix the version resolving issue.
 ## [2.0.0] - [Unreleased]
 ### Changed
 - Upgraded the plugin to support grails 3.3.5
@@ -32,7 +35,7 @@ Changed to replace just the first Occurrence.
 - ####CircleCI configuration
     -  `.circleci/config.yml` for build automation using `CircleCI`.
     - `mavenCredsSetup.sh` for generating `gradle.properties` during the CircleCI build.
-    
+
 ## [0.0.7] - 2017-08-24
 
 ### Added
